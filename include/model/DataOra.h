@@ -25,4 +25,6 @@ class DataOra {
         bool operator<(const DataOra &other) const ;
 
         std::string toString() const ;
+
+        DataOra adaugaMinute(int minuteAdaugate) const ;
 };

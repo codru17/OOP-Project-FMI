@@ -59,3 +59,24 @@ std::string DataOra::toString() const {
 std::string DataOra::douaCifre(int numar)  {
     return (numar < 10 ? "0" : "") + std::to_string(numar);
 }
+
+DataOra DataOra::adaugaMinute(int minuteAdaugate) const {
+    int totalMinute = minut + minuteAdaugate;
+    int newMinut = totalMinute % 60;
+    int totalOre = (totalMinute / 60) + ora;
+    int newOra = totalOre % 24;
+    int zileAdaugate = totalOre / 24;
+    int newZi = zi + zileAdaugate;
+    int newLuna = luna;
+    int newAn = an;
+    while(newZi > zileInLuna(newLuna, newAn)) {
+        newZi -= zileInLuna(newLuna, newAn);
+        newLuna++;
+        if (newLuna > 12) {
+            newLuna = 1;
+            newAn++;
+        }
+    }
+
+    return DataOra(newZi, newLuna, newAn, newOra, newMinut);
+}
