@@ -1,6 +1,10 @@
 #include <iostream>
+#include "model/Exceptii.h"
 
 int main() {
-    std::cout << "Hospital Management System" << std::endl;
-    return 0;
+    try {
+        throw DateInvalide("Datele introduse sunt invalide.");
+    } catch (const ExceptieSpital &e) {
+        std::cerr << "Eroare: " << e.what() << std::endl;
+    }
 }
