@@ -14,7 +14,7 @@ class Game {
         static constexpr unsigned int HEIGHT = 720;
         static constexpr float TIME_STEP = 1.0f / 60.0f;
         static constexpr float MAX_FRAME_TIME = .25f;
-        static constexpr char* TITLE = "Game2D";
+        static constexpr const char* TITLE = "Game2D";
         static constexpr unsigned int FRAMERATE_LIMIT = 144;
         sf::RenderWindow m_window;
         sf::Clock m_clock;
