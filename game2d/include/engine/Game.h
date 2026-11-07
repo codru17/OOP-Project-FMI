@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "engine/Input.h"
 
 class Game {
     public:
@@ -21,6 +22,7 @@ class Game {
         float m_accumulator = 0.f;
         int m_updateCount = 0;
         float m_debugTime = 0.f;
+        Input m_input;
         
 
         void processEvents();
