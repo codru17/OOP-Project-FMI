@@ -1,6 +1,17 @@
 #include <iostream>
+#include "engine/Game.h"
+
 
 int main() {
-    std::cout << "game2d: setup OK\n";
-    return 0;
+    try {
+        Game().run();
+    }
+     catch (const std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return EXIT_FAILURE;
+    } catch (...) {
+        std::cerr << "Unknown exception occurred." << std::endl;
+        return EXIT_FAILURE;
+    }
+    
 }
