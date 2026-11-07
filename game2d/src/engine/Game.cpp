@@ -4,10 +4,12 @@
 
 Game::Game() : m_window(sf::VideoMode(sf::Vector2u{WIDTH,HEIGHT}), TITLE) {
     m_window.setFramerateLimit(FRAMERATE_LIMIT);
+    m_window.setKeyRepeatEnabled(false);
 }
 
 void Game::processEvents() {
         while (auto event = m_window.pollEvent()) {
+            m_input.handleEvent(*event);
             if (event->is<sf::Event::Closed>()) {
                 m_window.close();
         }
@@ -38,6 +40,10 @@ void Game::update(float dt) {
         m_debugTime -= 1.0f;
         m_updateCount = 0;
     }
+    if(m_input.isPressed(sf::Keyboard::Key::Space))std::cout<<"Da"<<"\n"; // Example usage of input handling
+    if(m_input.isReleased(sf::Keyboard::Key::Space))std::cout<<"Nu"<<"\n"; // Example usage of input handling
+    if(m_input.isDown(sf::Keyboard::Key::Space))std::cout<<"E jos"<<"\n"; // Example usage of input handling
+    m_input.endStep();
 }
 
 void Game::render() {
