@@ -256,3 +256,28 @@ Clasă abstractă, virtuale pure, polimorfism la rulare (vtable), `override`, de
 - De ce `unique_ptr` în vector și nu obiecte?
 - Compoziție vs moștenire: unde le folosim (Game has-a Input; Player is-a Entity).
 - Ce e most vexing parse?
+
+---
+
+## Pasul 3 – progres (sesiunea 2026-11-14)
+
+### 3.1 + 3.2 Entity – GATA
+- `Entity.h`: destructor virtual `= default`, copiere `= delete` (fara `virtual` pe `operator=`), `update`/`draw` pure, getteri `const` (`getPosition`, `getSize`, `getVelocity` -> `sf::Vector2f`; `getBounds` -> `sf::FloatRect`), setteri `setPosition`/`setVelocity` (`void`), constructor `protected`, campuri private `m_position`, `m_velocity`, `m_size` (in aceasta ordine).
+- `Entity.cpp`: constructor cu lista de initializare `m_position(position), m_velocity(), m_size(size)`; `getBounds` = `sf::FloatRect(pozitie, marime)`.
+
+### Ce am invatat / greseli corectate
+- **virtual** = legare dinamica: prin pointer/referinta la baza se apeleaza versiunea tipului REAL (vtable + vptr). `= 0` -> clasa abstracta; `override` -> compilatorul verifica suprascrierea; destructorul bazei trebuie virtual (stergere prin `unique_ptr<Entity>`).
+- **#pragma once** = header-ul se include o singura data per `.cpp` (altfel "redefinition of class"). Doar in header-e.
+- Declaratie (`;`) vs definitie (`{ ... }`): in `.cpp` NU repeti declaratia -> eroarea "may not be redeclared outside its class".
+- Lista de initializare: incepe cu `:`, forma `camp(valoare)`, separate prin virgula, in ordinea DECLARARII din header (altfel `-Wreorder`). Un camp nu trebuie sa vina dintr-un parametru (`m_velocity()` = (0,0)).
+- `sf::Vector2f` nu se construieste dintr-un singur numar (`m_velocity(0)` = eroare).
+- Semnatura din `.cpp` trebuie sa fie identica cu cea din header, inclusiv `const` (altfel "no declaration matches"). `virtual` apare doar in header.
+- Getter = fara parametri, `return` camp, `const`. Setter = un parametru, atribuire, `void`, fara `const`.
+- Functie declarata dar nedefinita -> eroare abia la LINKER, cand e folosita ("undefined reference").
+- `#include "..."` pentru fisierele proiectului, `<...>` pentru biblioteci.
+
+### Setup VS Code (laptop nou, 2026-11-14)
+- Eroarea `'nmake' '-?' failed` = extensia CMake Tools nu stia generatorul -> alegea NMake (Visual Studio, neinstalat).
+- Fix: `game2d/CMakePresets.json` (Ninja + gcc/g++, build in `game2d/build`, Debug, compile_commands). Se deschide in VS Code direct folderul `game2d` si se alege presetul "Ninja + GCC (MinGW)".
+- Terminal: `cmake --preset default` apoi `cmake --build --preset default`.
+- "GLOB mismatch!" la build NU e eroare: CONFIGURE_DEPENDS a vazut un `.cpp` nou.
