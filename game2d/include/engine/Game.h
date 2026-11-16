@@ -4,11 +4,18 @@
 
 #include "engine/Input.h"
 
+#include <memory>
+
+#include <vector>
+
+#include "engine/Entity.h"
+
 class Game {
 public:
     Game();
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;
+    void addEntry(std::unique_ptr<Entity> entity);
 
     void run();
 
@@ -26,6 +33,7 @@ private:
     float m_accumulator = 0.f;  // timp real (secunde) inca nesimulat de update-uri
     int m_updateCount = 0;      // debug: cate update-uri au rulat in secunda curenta
     float m_debugTime = 0.f;    // debug: secunde de joc scurse de la ultima afisare a contorului
+    std::vector<std::unique_ptr<Entity>> m_entities;
 
     void processEvents();
     void update(float dt);
