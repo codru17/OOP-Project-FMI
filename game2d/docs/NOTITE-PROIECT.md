@@ -281,3 +281,10 @@ Clasă abstractă, virtuale pure, polimorfism la rulare (vtable), `override`, de
 - Fix: `game2d/CMakePresets.json` (Ninja + gcc/g++, build in `game2d/build`, Debug, compile_commands). Se deschide in VS Code direct folderul `game2d` si se alege presetul "Ninja + GCC (MinGW)".
 - Terminal: `cmake --preset default` apoi `cmake --build --preset default`.
 - "GLOB mismatch!" la build NU e eroare: CONFIGURE_DEPENDS a vazut un `.cpp` nou.
+
+### 3.3 Platform, 3.4 Game cu entitati, 3.5 main – GATA (2026-11-22)
+- `Platform : public Entity`: `sf::RectangleShape m_shape`; constructor `: Entity(position, size), m_shape(size)` + in corp `m_shape.setPosition`, `m_shape.setFillColor(Green)`; `update(float) {}` (parametru fara nume); `draw` -> `target.draw(m_shape)`.
+- `Game`: `std::vector<std::unique_ptr<Entity>> m_entities` (dupa `m_input`); `addEntity` -> `m_entities.push_back(std::move(entity))`; `const Input& getInput() const`; range-for `auto&` in `update` (inainte de `endStep`) si in `render` (intre `clear` si `display`).
+- `main.cpp`: `Game game;` (fara `()` – most vexing parse), 3 platforme cu `std::make_unique<Platform>(...)`, apoi `game.run()`.
+- Greseli: definitie in header + in .cpp ("redefinition"); `Platform::` in clasa ("extra qualification"); functii scrise in interiorul constructorului; `Game.m_entities` (Game e clasa, nu obiect; campurile se acceseaza direct / `this`); `push_back` fara `std::move` (unique_ptr nu se copiaza); `m_entities->update` in loc de variabila buclei; `addEntity` scris in Entity.cpp (metoda se defineste in .cpp-ul clasei ei); `Input&` din metoda `const` (trebuie `const Input&`).
+- Mediu: `Permission denied` la `./game2d.exe` = Smart App Control (Windows 11) blocheaza exe nesemnate; nu Cortex XDR / Defender.
