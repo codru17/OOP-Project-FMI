@@ -1,23 +1,23 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-
-#include "engine/Input.h"
-
 #include <memory>
-
 #include <vector>
 
+#include <SFML/Graphics.hpp>
+
 #include "engine/Entity.h"
+#include "engine/Input.h"
 
 class Game {
 public:
     Game();
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;
-    void addEntry(std::unique_ptr<Entity> entity);
 
     void run();
+
+    void addEntity(std::unique_ptr<Entity> entity);
+    const Input& getInput() const;
 
 private:
     static constexpr unsigned int WIDTH = 1280;          // latimea ferestrei, in pixeli
@@ -33,7 +33,7 @@ private:
     float m_accumulator = 0.f;  // timp real (secunde) inca nesimulat de update-uri
     int m_updateCount = 0;      // debug: cate update-uri au rulat in secunda curenta
     float m_debugTime = 0.f;    // debug: secunde de joc scurse de la ultima afisare a contorului
-    std::vector<std::unique_ptr<Entity>> m_entities;
+    std::vector<std::unique_ptr<Entity>> m_entities; // toate obiectele din joc; Game le detine si le distruge automat (dupa m_input, deci inaintea lui)
 
     void processEvents();
     void update(float dt);
