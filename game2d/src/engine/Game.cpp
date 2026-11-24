@@ -52,7 +52,7 @@ void Game::update(float dt) {
     for(auto& entity : m_entities) {
         entity->update(dt);
     } 
-
+    resolveCollisions();
     m_input.endStep();
 }
 
@@ -70,4 +70,59 @@ void Game::addEntity(std::unique_ptr<Entity> entity) {
 
 const Input& Game::getInput() const  {
     return m_input;
+}
+
+void Game::resolveCollisions() {
+    for(auto& entity : m_entities) {
+        if(!entity->isDynamic()) continue;
+        entity->setOnGround(false);
+        for(auto& ent : m_entities) {
+            if(!ent->isSolid())continue;
+
+            auto intersection = (entity->getBounds()).findIntersection(ent->getBounds());
+            if(!intersection)continue;
+            auto pos = entity->getPosition();
+            auto vel = entity->getVelocity();
+            auto cent1 = (entity->getBounds()).getCenter();
+            auto cent2 = (ent->getBounds()).getCenter();
+            
+            if(intersection->size.x <intersection->size.y) {
+                if(cent1.x < cent2.x){
+                    pos.x -= intersection->size.x;
+                    vel.x = 0;
+                }
+                else {
+                    pos.x += intersection->size.x;
+                    vel.x=0;
+                }
+            } else {
+                if(cent1.y < cent2.y) {
+                    pos.y -= intersection->size.y;
+                    vel.y = 0;
+                    entity->setOnGround(true);
+                }
+                else {
+                    pos.y += intersection->size.y;
+                    vel.y=0;
+                }
+            }
+            entity->setPosition(pos);
+            entity->setVelocity(vel);
+        }
+        // marginile ferestrei: entitatea dinamica nu are voie sa iasa pe stanga sau pe dreapta
+        auto pos = entity->getPosition();
+        auto vel = entity->getVelocity();
+        float width = entity->getSize().x;
+
+        if (pos.x < 0.f) {
+            pos.x = 0.f;
+            vel.x = 0.f;
+        } else if (pos.x + width > WIDTH) {
+            pos.x = WIDTH - width;
+            vel.x = 0.f;
+        }
+
+        entity->setPosition(pos);
+        entity->setVelocity(vel);
+    }
 }

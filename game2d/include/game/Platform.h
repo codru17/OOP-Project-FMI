@@ -8,6 +8,7 @@ public:
 
     void update(float dt) override;
     void draw(sf::RenderTarget& target) const override;
+    bool isSolid() const override {return true;} 
 
 private:
     sf::RectangleShape m_shape; // dreptunghiul desenat pe ecran (pozitia si marimea copiate din Entity la constructie)

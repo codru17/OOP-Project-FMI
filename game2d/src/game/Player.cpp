@@ -1,5 +1,6 @@
 #include "game/Player.h"
 #include "engine/Input.h"
+#include <algorithm>
 
 Player::Player(sf::Vector2f position, const Input& input) : Entity(position, {SIZE,SIZE}), m_input(input), m_shape({SIZE,SIZE}) {
     m_shape.setFillColor(sf::Color::Black);
@@ -8,11 +9,19 @@ Player::Player(sf::Vector2f position, const Input& input) : Entity(position, {SI
 
 void Player::update(float dt) {
     float direction = 0;
+
     if(m_input.isDown(sf::Keyboard::Key::A) || m_input.isDown(sf::Keyboard::Key::Left)) direction -=1;
     if(m_input.isDown(sf::Keyboard::Key::D) || m_input.isDown(sf::Keyboard::Key::Right)) direction +=1;
-    float x=direction * MOVE_SPEED, y=0;
-    setVelocity(sf::Vector2f {x,y});
+
+    float vx = direction * MOVE_SPEED;
+    float vy = getVelocity().y + GRAVITY * dt;
+
+    vy = std::min(vy, MAX_FALL_SPEED);
+    if(isOnGround() && (m_input.isPressed(sf::Keyboard::Key::W) || m_input.isPressed(sf::Keyboard::Key::Up) || m_input.isPressed(sf::Keyboard::Key::Space))) vy =-JUMP_SPEED;
+
+    setVelocity(sf::Vector2f {vx,vy});
     setPosition(getPosition() + getVelocity() * dt);
+
     m_shape.setPosition(getPosition());
 }
 

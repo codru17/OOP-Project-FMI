@@ -38,4 +38,5 @@ private:
     void processEvents();
     void update(float dt);
     void render();
+    void resolveCollisions();
 };
