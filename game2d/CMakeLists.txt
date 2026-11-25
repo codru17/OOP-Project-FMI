@@ -27,7 +27,13 @@ FetchContent_MakeAvailable(SFML)
 # ---------------------------------------------------------------------------
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
-add_executable(game2d ${SOURCES})
+add_executable(game2d ${SOURCES}
+        include/engine/LevelLoadError.h
+        include/engine/EntityFactory.h
+        include/game/GameEntityFactory.h
+        src/game/GameEntityFactory.cpp
+        src/game/GameEntityFactory.cpp
+        src/game/GameEntityFactory.cpp)
 
 # Lets code include headers as "engine/Scene.h" instead of relative paths
 target_include_directories(game2d PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -45,7 +51,10 @@ else()
     endif()
 endif()
 
-# Copy assets/ next to the executable after each build, so paths like "assets/textures/player.png" work
-add_custom_command(TARGET game2d POST_BUILD
+# Copy assets/ next to the executable on EVERY build (not only when the .exe is relinked),
+# so editing only a level file (e.g. assets/levels/level1.txt) is picked up after Ctrl+F9
+add_custom_target(copy_assets ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/assets $<TARGET_FILE_DIR:game2d>/assets)
+            ${CMAKE_CURRENT_SOURCE_DIR}/assets $<TARGET_FILE_DIR:game2d>/assets
+    COMMENT "Copying assets/ next to the executable")
+add_dependencies(game2d copy_assets)

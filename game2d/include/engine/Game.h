@@ -7,6 +7,8 @@
 
 #include "engine/Entity.h"
 #include "engine/Input.h"
+#include <string>
+#include "engine/EntityFactory.h"
 
 class Game {
 public:
@@ -18,6 +20,8 @@ public:
 
     void addEntity(std::unique_ptr<Entity> entity);
     const Input& getInput() const;
+
+    void loadLevel(const std::string& path, const EntityFactory& factory);
 
 private:
     static constexpr unsigned int WIDTH = 1280;          // latimea ferestrei, in pixeli

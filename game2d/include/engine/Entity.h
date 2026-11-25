@@ -31,5 +31,5 @@ private:
     sf::Vector2f m_position; // coltul stanga-sus al entitatii, in pixeli (in SFML axa y creste in jos)
     sf::Vector2f m_velocity; // viteza entitatii, in pixeli pe secunda; porneste (0,0)
     sf::Vector2f m_size;     // latimea (x) si inaltimea (y) entitatii, in pixeli; fixata la constructie
-    bool m_onGround = false;
+    bool m_onGround = false; // true daca entitatea sta pe ceva solid; setat de Game in resolveCollisions
 };

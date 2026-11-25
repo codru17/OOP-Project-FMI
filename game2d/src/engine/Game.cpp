@@ -2,6 +2,8 @@
 #include <utility>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
+#include "engine/LevelLoadError.h"
 
 Game::Game() : m_window(sf::VideoMode(sf::Vector2u{WIDTH, HEIGHT}), TITLE) {
     m_window.setFramerateLimit(FRAMERATE_LIMIT);
@@ -125,4 +127,24 @@ void Game::resolveCollisions() {
         entity->setPosition(pos);
         entity->setVelocity(vel);
     }
+}
+
+void Game::loadLevel(const std::string &path, const EntityFactory &factory) {
+    std::ifstream MyRead(path);
+    if (!MyRead.is_open())throw LevelLoadError(path);
+
+    m_entities.clear();
+
+    std::string line;
+    std::size_t row = 0;
+    while (std::getline(MyRead, line)) {
+        if (!line.empty() && line.back() == '\r')line.pop_back();
+        for (std::size_t col=0;col<line.size();col++) {
+            sf::Vector2f pozitie = {static_cast<float>(col * EntityFactory::TILE_SIZE), static_cast<float>(row * EntityFactory::TILE_SIZE)};
+            auto ent = factory.create(line[col], pozitie);
+            if (ent != nullptr)addEntity(std::move(ent));
+        }
+        ++row;
+    }
+    if (row==0)throw LevelLoadError("nivel gol");
 }

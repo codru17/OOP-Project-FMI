@@ -288,3 +288,23 @@ Clasă abstractă, virtuale pure, polimorfism la rulare (vtable), `override`, de
 - `main.cpp`: `Game game;` (fara `()` – most vexing parse), 3 platforme cu `std::make_unique<Platform>(...)`, apoi `game.run()`.
 - Greseli: definitie in header + in .cpp ("redefinition"); `Platform::` in clasa ("extra qualification"); functii scrise in interiorul constructorului; `Game.m_entities` (Game e clasa, nu obiect; campurile se acceseaza direct / `this`); `push_back` fara `std::move` (unique_ptr nu se copiaza); `m_entities->update` in loc de variabila buclei; `addEntity` scris in Entity.cpp (metoda se defineste in .cpp-ul clasei ei); `Input&` din metoda `const` (trebuie `const Input&`).
 - Mediu: `Permission denied` la `./game2d.exe` = Smart App Control (Windows 11) blocheaza exe nesemnate; nu Cortex XDR / Defender.
+
+## Pasul 4 – gravitatie, saritura, coliziuni – GATA (2026-11-24, testat)
+- Entity: virtuale NEPURE `isSolid()` / `isDynamic()` (implicit false), `m_onGround` + `isOnGround`/`setOnGround` (inline in header).
+- Platform: `isSolid() override -> true`; Player: `isDynamic() override -> true`.
+- Player: GRAVITY 1800 px/s^2, JUMP_SPEED 800 px/s (~178 px), MAX_FALL_SPEED 1000 px/s (anti-tunneling); vy = vy_vechi + g*dt, min(.., MAX); saritura cu `isPressed` (W/Up/Space) doar `isOnGround()`, atribuire `vy = -JUMP_SPEED`.
+- Game::resolveCollisions (dupa update-ul entitatilor, inainte de endStep): pentru fiecare dinamic -> onGround=false; pentru fiecare solid -> `getBounds().findIntersection(...)` (std::optional<FloatRect>); axa cu suprapunerea MAI MICA (minimum translation vector); sens dupa centre (`getCenter()`); viteza 0 pe acea axa; deasupra -> onGround=true; apoi marginile ferestrei (x in [0, WIDTH - latime]).
+- Desenare: m_shape sta in (0,0); `sf::RenderStates states; states.transform.translate(getPosition()); target.draw(m_shape, states);` -> o singura sursa de adevar pentru pozitie, fara tremur dupa corectia coliziunii.
+- Greseli: modificat zona comuna in loc de pozitie; lipsa verificarii optional gol; marginea verificata pe viteza in loc de pozitie; dubla desenare dupa trecerea la RenderStates.
+- Mediu: CLion 2026.3; toolchain MinGW C:\mingw64; profil CMake cu build dir C:\cmake-builds\game2d (windres din MinGW nu suporta spatii in cai -> FreeType .rc pica in build/ din proiect).
+
+## Pasul 5 – niveluri din fisiere – GATA (2026-11-25, testat)
+- Format: `assets/levels/level1.txt`, grila 32 x 18 caractere, tile 40x40 px: `.` gol, `#` Platform, `P` jucator. Pozitie = (col*40, row*40).
+- `LevelLoadError : public std::runtime_error` (header-only, constructor cu lista de initializare spre baza; prinsa in main prin `const std::exception&`).
+- `EntityFactory` (engine, interfata): `virtual ~EntityFactory() = default`, `virtual std::unique_ptr<Entity> create(char, sf::Vector2f) const = 0`, `static constexpr float TILE_SIZE = 40`.
+- `GameEntityFactory : public EntityFactory` (game): `explicit` ctor cu `const Input&`; `create` = `switch`: '#' -> Platform, 'P' -> Player, '.' -> nullptr, default -> throw LevelLoadError.
+- `Game::loadLevel(const std::string& path, const EntityFactory& factory)`: `std::ifstream`, verificare deschidere, `m_entities.clear()`, `std::getline`, scos `'\r'` (CRLF), `for` pe coloane, `factory.create`, `addEntity(std::move(...))`, "nivel gol".
+- main: `GameEntityFactory factory(game.getInput()); game.loadLevel("assets/levels/level1.txt", factory);`
+- Pattern-uri: Factory Method + interfata (dependency inversion: engine depinde de abstractie, nu de Platform/Player).
+- CMake: copierea assets/ e acum `add_custom_target(copy_assets ALL ...)` + `add_dependencies(game2d copy_assets)` -> se copiaza la fiecare build.
+- Greseli: guard CLion cu clasa dupa #endif; lista de init fara corp; antet clasa amestecat cu constructorul; TILE*TILE in loc de Vector2f{TILE,TILE}; TITLE_SIZE; getline(path,...) in loc de stream; `line.back()` fara comparatie / cu `!=` (stergea ultima coloana).

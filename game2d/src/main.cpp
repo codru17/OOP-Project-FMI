@@ -3,20 +3,17 @@
 #include <iostream>
 #include <memory>
 
-#include "game/Platform.h"
 #include "engine/Game.h"
+#include "game/Platform.h"
 #include "game/Player.h"
+#include "game/GameEntityFactory.h"
 
 int main() {
     try {
         Game game;
-        float x=100,y=612;
-        game.addEntity(std::make_unique<Player>(sf::Vector2f {x,y},game.getInput()));
-        game.addEntity(std::make_unique<Platform>(sf::Vector2f{0,660},sf::Vector2f{1280,60}));
-        game.addEntity(std::make_unique<Platform>(sf::Vector2f{250,520},sf::Vector2f{220,24}));
-        game.addEntity(std::make_unique<Platform>(sf::Vector2f{700,400},sf::Vector2f{220,24}));
+        GameEntityFactory fact(game.getInput());
+        game.loadLevel("assets/levels/level1.txt", fact);
         game.run();
-
     } catch (const std::exception& e) {
         std::cerr << "Exception: " << e.what() << '\n';
         return EXIT_FAILURE;
